@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from dotenv import load_dotenv
 from artists_data import top_artists
+from tracks_data import top_tracks 
 
 load_dotenv()
 
@@ -12,8 +13,18 @@ load_dotenv()
 
 @login_required(login_url='login')
 def index(request):
+    first_six_tracks = top_tracks[:6]
+    second_six_tracks = top_tracks[6:12]
+    third_six_tracks = top_tracks[12:18]
 
-    return render(request, 'index.html', {'artists_info': top_artists})
+    context = {
+        'artists_info' : top_artists,
+        'first_six_tracks': first_six_tracks,
+        'second_six_tracks': second_six_tracks,
+        'third_six_tracks': third_six_tracks,
+    }
+
+    return render(request, 'index.html', context)
     
 def login(request):
     if request.method == 'POST':
