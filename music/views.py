@@ -1,9 +1,19 @@
 from django.shortcuts import redirect, render
 from django.contrib import auth, messages
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from dotenv import load_dotenv
+from artists_data import top_artists
 
+load_dotenv()
+
+        
+
+
+@login_required(login_url='login')
 def index(request):
-    return render(request, 'index.html')
+
+    return render(request, 'index.html', {'artists_info': top_artists})
     
 def login(request):
     if request.method == 'POST':
@@ -36,6 +46,7 @@ def signup(request):
             return redirect('/')
     return render(request, 'signup.html')
 
+@login_required(login_url='login')
 def logout(request):
     auth.logout(request)
     return redirect('login')
