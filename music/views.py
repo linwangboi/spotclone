@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from dotenv import load_dotenv
 from artists_data import top_artists
 from tracks_data import top_tracks 
+import requests
+import os
 
 load_dotenv()
 
@@ -61,3 +63,24 @@ def signup(request):
 def logout(request):
     auth.logout(request)
     return redirect('login')
+
+
+@login_required(login_url='login')
+def music(request, pk):
+    url = f'https://api.spotify.com/v1/tracks/{pk}'
+    headers = {
+        'Authorization': f'Bearer {os.getenv('SPOTIFY_TOKEN')}',
+        'Content-Type': 'application/json',
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        if 'album' in data:
+            track_name = data.get('name')
+            artists = data.get('artists', [])
+            first_artist_name = artists[0].get('name') if artists else 'Unknown'
+            context = {
+                'track_name': track_name,
+                'artist_name': first_artist_name,
+            }
+    return render(request, 'music.html', context)
