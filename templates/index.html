@@ -44,7 +44,7 @@
 
     <div style="margin-left:240px; padding:20px;">
         <header class="header-container">
-            <form action="search" method="POST">
+            <form action="{% url 'search' %}" method="POST">
                 {% csrf_token %}
 
                 <div class="search-bar" style="width: 390px;">

@@ -78,7 +78,7 @@ def get_audio_details(query):
     audio_details = []
     if response.status_code == 200:
         data = response.json()
-        print(data)
+        # print(data)
         track = data.get("soundcloudTrack")
         if track and "audio" in track and track["audio"]:
             first_audio = track["audio"][0]
@@ -121,3 +121,46 @@ def music(request, pk):
                 'track_image': track_image,
             }
     return render(request, 'music.html', context)
+
+
+def profile(request, pk):
+    url = "https://spotify-scraper.p.rapidapi.com/v1/artist/overview"
+
+    querystring = {"artistId": pk}
+
+    headers = {
+        "x-rapidapi-key": "c76c79dc85msh58c487ff509dc7ap1cdd5bjsn5f2523f93b17",
+        "x-rapidapi-host": "spotify-scraper.p.rapidapi.com"
+    }
+
+    response = requests.get(url, headers=headers, params=querystring)
+    if response.status_code == 200:
+        data = response.json()
+        name = data['name']
+        monthly_listeners = data['stats']['monthlyListeners']
+        header_url = data['visuals']['header'][0]['url']
+        top_tracks = []
+        for track in data['discography']['topTracks']:
+            top_tracks.append({
+                'id': track['id'],
+                'name': track['name'],
+                'track_image': track['album']['cover'][-1]['url'],
+                'playCount': track['playCount'],
+                'durationText': track['durationText'],
+            })
+            
+
+        context = {
+            'name': name,
+            'monthlyListeners': monthly_listeners,
+            'headerUrl': header_url,
+            'topTracks': top_tracks,
+        }
+    else:
+        context = {}
+        
+    return render(request, 'profile.html', context)
+
+
+def search(request):
+    return render(request, 'search.html')
