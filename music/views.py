@@ -78,11 +78,17 @@ def get_audio_details(query):
     audio_details = []
     if response.status_code == 200:
         data = response.json()
+        print(data)
         track = data.get("soundcloudTrack")
         if track and "audio" in track and track["audio"]:
             first_audio = track["audio"][0]
             audio_details.append(first_audio.get("url"))
             audio_details.append(first_audio.get("durationText"))
+        track = data.get('spotifyTrack')
+        album = track.get('album') if track else None
+        if album and 'cover' in album and album['cover']:
+            first_cover = album['cover'][-1]
+            audio_details.append(first_cover.get('url'))
 
 
     return audio_details
@@ -98,17 +104,20 @@ def music(request, pk):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         data = response.json()
+
         if 'album' in data:
             track_name = data.get('name')
             artists = data.get('artists', [])
             first_artist_name = artists[0].get('name') if artists else 'Unknown'
-            audio_details = get_audio_details(track_name + first_artist_name)
+            audio_details = get_audio_details(f'{track_name} {first_artist_name}')
             audio_url = audio_details[0]
             duration_text = audio_details[1]
+            track_image = audio_details[2]
             context = {
                 'track_name': track_name,
                 'artist_name': first_artist_name,
                 'audio_url': audio_url,
                 'duration_text': duration_text,
+                'track_image': track_image,
             }
     return render(request, 'music.html', context)
